@@ -1,0 +1,8 @@
+# Use this workspace to collaborate
+workspace:
+  id: 98712354-c460-4c0c-8bbc-4d8e0b3f2e6e
+
+localResources:
+  collections:
+    - ../Spring Boot Microservices Professional eCommerce
+      Masterclass.postman_collection.json

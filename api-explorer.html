@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcomShop API Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --card:     #1c2230;
+      --border:   #30363d;
+      --accent:   #7c3aed;
+      --accent2:  #06b6d4;
+      --success:  #10b981;
+      --warning:  #f59e0b;
+      --danger:   #ef4444;
+      --text:     #e6edf3;
+      --muted:    #8b949e;
+      --code-bg:  #0d1117;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #1a0533 0%, #0c1a3a 50%, #001a1a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .logo-icon { font-size: 1.6rem; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    #auth-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      font-weight: 500;
+    }
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+    .status-dot.green { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .status-dot.red   { background: var(--danger);  box-shadow: 0 0 8px var(--danger); }
+
+    /* ── HERO LOGIN ── */
+    #login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 64px);
+      padding: 2rem;
+      background: radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.08) 0%, transparent 60%);
+    }
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+      animation: fadeUp 0.5s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .login-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .login-card h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .login-card p  { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; line-height: 1.6; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #9333ea);
+      color: white;
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.5); }
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 0.82rem;
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .btn-sm:hover { background: rgba(255,255,255,0.12); }
+    .btn-danger { background: rgba(239,68,68,0.15); color: var(--danger); border-color: rgba(239,68,68,0.3); }
+    .btn-danger:hover { background: rgba(239,68,68,0.25); }
+
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .badge {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    .badge-purple { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+    .badge-cyan   { background: rgba(6,182,212,0.12);  color: #38bdf8;  border: 1px solid rgba(6,182,212,0.3); }
+    .badge-green  { background: rgba(16,185,129,0.12); color: #34d399;  border: 1px solid rgba(16,185,129,0.3); }
+
+    /* ── MAIN APP ── */
+    #app-screen { display: none; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+
+    /* user info bar */
+    .user-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .user-info { display: flex; align-items: center; gap: 12px; }
+    .avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1rem;
+    }
+    .user-name { font-weight: 600; font-size: 0.95rem; }
+    .user-email { color: var(--muted); font-size: 0.8rem; }
+    .token-preview {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      background: var(--code-bg);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── API CARDS ── */
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+    .api-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .api-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .api-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .api-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.6rem;
+    }
+    .method {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .method-get  { background: rgba(16,185,129,0.2);  color: #34d399; }
+    .method-post { background: rgba(245,158,11,0.2);  color: #fbbf24; }
+    .method-put  { background: rgba(6,182,212,0.2);   color: #38bdf8; }
+    .method-del  { background: rgba(239,68,68,0.2);   color: #f87171; }
+    .endpoint-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .api-desc { color: var(--muted); font-size: 0.82rem; margin-bottom: 0.8rem; }
+    .run-btn {
+      width: 100%;
+      padding: 9px;
+      background: rgba(124,58,237,0.1);
+      border: 1px solid rgba(124,58,237,0.3);
+      color: #a78bfa;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .run-btn:hover { background: rgba(124,58,237,0.2); border-color: var(--accent); }
+    .run-btn.loading { opacity: 0.7; cursor: not-allowed; }
+
+    /* ── RESPONSE PANEL ── */
+    #response-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-top: 2rem;
+      display: none;
+      animation: fadeUp 0.3s ease;
+    }
+    .response-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--card);
+    }
+    .response-header-left { display: flex; align-items: center; gap: 12px; }
+    .status-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+    .status-2xx { background: rgba(16,185,129,0.2); color: #34d399; }
+    .status-4xx { background: rgba(239,68,68,0.2);  color: #f87171; }
+    .status-5xx { background: rgba(245,158,11,0.2); color: #fbbf24; }
+    .response-endpoint {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    #response-body {
+      padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: #e6edf3;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    #response-body::-webkit-scrollbar { width: 6px; }
+    #response-body::-webkit-scrollbar-track { background: transparent; }
+    #response-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* JSON syntax highlight */
+    .json-key    { color: #79c0ff; }
+    .json-string { color: #a5d6ff; }
+    .json-num    { color: #f0883e; }
+    .json-bool   { color: #ff7b72; }
+    .json-null   { color: #8b949e; }
+
+    /* token modal */
+    .token-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      backdrop-filter: blur(4px);
+    }
+    .token-modal-overlay.open { display: flex; }
+    .token-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 640px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .token-modal h3 { font-size: 1rem; margin-bottom: 1rem; }
+    .token-textarea {
+      width: 100%;
+      min-height: 120px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      padding: 1rem;
+      resize: vertical;
+      word-break: break-all;
+    }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(167,139,250,0.3);
+      border-top-color: #a78bfa;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) {
+      header { padding: 0 1rem; }
+      #app-screen { padding: 1rem; }
+      .api-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <span class="logo-icon">🛍️</span>
+    EcomShop API Explorer
+  </div>
+  <div class="header-right">
+    <div id="auth-status">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Not authenticated</span>
+    </div>
+    <button class="btn btn-sm" id="token-btn" onclick="showTokenModal()" style="display:none">🔑 Token</button>
+    <button class="btn btn-sm btn-danger" id="logout-btn" onclick="logout()" style="display:none">Sign out</button>
+  </div>
+</header>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <span class="login-icon">🔐</span>
+    <h1>Welcome to EcomShop</h1>
+    <p>Sign in with your Keycloak account to explore the microservices API through the gateway on port 8080.</p>
+    <div class="badge-row">
+      <span class="badge badge-purple">⚡ PKCE Auth</span>
+      <span class="badge badge-cyan">🌐 API Gateway :8080</span>
+      <span class="badge badge-green">🔒 JWT Secured</span>
+    </div>
+    <button class="btn btn-primary" onclick="login()">
+      🔑 Sign in with Keycloak
+    </button>
+    <p style="margin-top:1.2rem; font-size:0.78rem; color: var(--muted)">
+      Keycloak realm: <strong style="color:#a78bfa">ecom-app</strong> &nbsp;·&nbsp;
+      Uses PKCE flow &nbsp;·&nbsp; No password stored here
+    </p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-screen">
+  <!-- User Bar -->
+  <div class="user-bar">
+    <div class="user-info">
+      <div class="avatar" id="user-avatar">?</div>
+      <div>
+        <div class="user-name" id="user-name">Loading...</div>
+        <div class="user-email" id="user-roles">—</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <div>
+        <div style="font-size:0.7rem; color:var(--muted); margin-bottom:3px;">JWT Token</div>
+        <div class="token-preview" id="token-preview">—</div>
+      </div>
+      <button class="btn btn-sm" onclick="showTokenModal()">View Full Token</button>
+    </div>
+  </div>
+
+  <!-- Products Section -->
+  <div class="section-title">📦 Product Service &nbsp;·&nbsp; port 8081 via gateway :8080</div>
+  <div class="api-grid">
+    <div class="api-card" onclick="callApi('GET', '/api/products', 'List all products')">
+      <div class="api-card-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/products</span>
+      </div>
+      <div class="api-desc">Fetch all products from the catalogue</div>
+      <button class="run-btn" id="btn-GET-/api/products">▶ Run Request</button>
+    </div>
+    <div class="api-card" onclick="callApi('GET', '/api/products/1', 'Get product by ID')">
+      <div class="api-card-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/products/1</span>
+      </div>
+      <div class="api-desc">Fetch a single product by its ID</div>
+      <button class="run-btn" id="btn-GET-/api/products/1">▶ Run Request</button>
+    </div>
+  </div>
+
+  <!-- Users Section -->
+  <div class="section-title">👤 User Service &nbsp;·&nbsp; port 8082 via gateway :8080</div>
+  <div class="api-grid">
+    <div class="api-card" onclick="callApi('GET', '/api/users', 'List all users')">
+      <div class="api-card-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/users</span>
+      </div>
+      <div class="api-desc">Fetch all registered users</div>
+      <button class="run-btn" id="btn-GET-/api/users">▶ Run Request</button>
+    </div>
+  </div>
+
+  <!-- Orders Section -->
+  <div class="section-title">🛒 Order Service &nbsp;·&nbsp; port 8083 via gateway :8080</div>
+  <div class="api-grid">
+    <div class="api-card" onclick="callApi('GET', '/api/cart', 'View cart')">
+      <div class="api-card-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/cart</span>
+      </div>
+      <div class="api-desc">View current cart contents</div>
+      <button class="run-btn" id="btn-GET-/api/cart">▶ Run Request</button>
+    </div>
+    <div class="api-card" onclick="callApi('GET', '/api/orders', 'List orders')">
+      <div class="api-card-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/orders</span>
+      </div>
+      <div class="api-desc">List all orders</div>
+      <button class="run-btn" id="btn-GET-/api/orders">▶ Run Request</button>
+    </div>
+  </div>
+
+  <!-- System Section -->
+  <div class="section-title">⚙️ Gateway System Endpoints &nbsp;·&nbsp; :8080</div>
+  <div class="api-grid">
+    <div class="api-card" onclick="callApi('GET', '/actuator/health', 'Gateway health')">
+      <div class="api-card-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/actuator/health</span>
+      </div>
+      <div class="api-desc">Check gateway and downstream health status</div>
+      <button class="run-btn" id="btn-GET-/actuator/health">▶ Run Request</button>
+    </div>
+    <div class="api-card" onclick="callApi('GET', '/eureka/main', 'Eureka dashboard')">
+      <div class="api-card-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/eureka/main</span>
+      </div>
+      <div class="api-desc">Proxy to Eureka service registry dashboard</div>
+      <button class="run-btn" id="btn-GET-/eureka/main">▶ Run Request</button>
+    </div>
+  </div>
+
+  <!-- Response Panel -->
+  <div id="response-panel">
+    <div class="response-header">
+      <div class="response-header-left">
+        <span class="status-pill" id="res-status-pill">—</span>
+        <span class="response-endpoint" id="res-endpoint">—</span>
+      </div>
+      <button class="btn btn-sm" onclick="document.getElementById('response-panel').style.display='none'">✕ Close</button>
+    </div>
+    <pre id="response-body">—</pre>
+  </div>
+</div>
+
+<!-- Token Modal -->
+<div class="token-modal-overlay" id="token-modal-overlay" onclick="closeTokenModal(event)">
+  <div class="token-modal">
+    <h3>🔑 Your JWT Access Token</h3>
+    <textarea class="token-textarea" id="token-full" readonly></textarea>
+    <p style="font-size:0.78rem; color:var(--muted); margin-top:0.5rem">
+      Copy this and paste in Postman or curl as <code>Authorization: Bearer &lt;token&gt;</code>
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-sm" onclick="copyToken()">📋 Copy</button>
+      <button class="btn btn-sm" onclick="closeTokenModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────────────────
+  const KEYCLOAK_URL  = 'http://localhost:8180';
+  const REALM         = 'ecom-app';
+  const CLIENT_ID     = 'oauth2-pkce';
+  const REDIRECT_URI  = window.location.origin + window.location.pathname;
+  const GATEWAY_URL   = 'http://localhost:8080';
+
+  // ── PKCE HELPERS ────────────────────────────────────────────────────
+  function generateRandomString(len = 64) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    let result = '';
+    const arr = new Uint8Array(len);
+    crypto.getRandomValues(arr);
+    arr.forEach(v => result += chars[v % chars.length]);
+    return result;
+  }
+
+  async function sha256Base64url(plain) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(plain);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return btoa(String.fromCharCode(...new Uint8Array(hash)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  // ── LOGIN ────────────────────────────────────────────────────────────
+  async function login() {
+    const verifier  = generateRandomString();
+    const challenge = await sha256Base64url(verifier);
+    const state     = generateRandomString(16);
+
+    sessionStorage.setItem('pkce_verifier', verifier);
+    sessionStorage.setItem('pkce_state', state);
+
+    const params = new URLSearchParams({
+      response_type:         'code',
+      client_id:             CLIENT_ID,
+      redirect_uri:          REDIRECT_URI,
+      scope:                 'openid profile email',
+      state,
+      code_challenge:        challenge,
+      code_challenge_method: 'S256',
+    });
+    window.location.href = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/auth?${params}`;
+  }
+
+  // ── HANDLE REDIRECT CALLBACK ─────────────────────────────────────────
+  async function handleCallback() {
+    const params   = new URLSearchParams(window.location.search);
+    const code     = params.get('code');
+    const state    = params.get('state');
+    const verifier = sessionStorage.getItem('pkce_verifier');
+    const savedState = sessionStorage.getItem('pkce_state');
+
+    if (!code || !verifier) return false;
+    if (state !== savedState) { alert('State mismatch! Possible CSRF.'); return false; }
+
+    // Exchange code for token
+    const body = new URLSearchParams({
+      grant_type:    'authorization_code',
+      client_id:     CLIENT_ID,
+      redirect_uri:  REDIRECT_URI,
+      code,
+      code_verifier: verifier,
+    });
+
+    const r = await fetch(`${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+    });
+    const data = await r.json();
+    if (data.error) { alert('Auth error: ' + data.error_description); return false; }
+
+    sessionStorage.setItem('access_token', data.access_token);
+    sessionStorage.setItem('refresh_token', data.refresh_token || '');
+    sessionStorage.removeItem('pkce_verifier');
+    sessionStorage.removeItem('pkce_state');
+
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+    return true;
+  }
+
+  // ── PARSE JWT ────────────────────────────────────────────────────────
+  function parseJwt(token) {
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(atob(base64));
+    } catch { return {}; }
+  }
+
+  // ── SHOW APP ─────────────────────────────────────────────────────────
+  function showApp() {
+    const token = sessionStorage.getItem('access_token');
+    if (!token) return;
+
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+    document.getElementById('logout-btn').style.display = 'flex';
+    document.getElementById('token-btn').style.display = 'flex';
+
+    const dot  = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+    dot.className = 'status-dot green';
+    text.textContent = 'Authenticated';
+
+    const claims = parseJwt(token);
+    const name   = claims.preferred_username || claims.name || 'User';
+    document.getElementById('user-name').textContent = name;
+    document.getElementById('user-avatar').textContent = name[0].toUpperCase();
+
+    const roles = claims.realm_access?.roles?.filter(r => !r.startsWith('default-roles') && r !== 'offline_access' && r !== 'uma_authorization') || [];
+    document.getElementById('user-roles').textContent = roles.length ? '🏷 ' + roles.join(', ') : 'No special roles';
+
+    document.getElementById('token-preview').textContent = token.substring(0, 40) + '…';
+    document.getElementById('token-full').value = token;
+  }
+
+  // ── API CALL ─────────────────────────────────────────────────────────
+  async function callApi(method, path, label) {
+    const token = sessionStorage.getItem('access_token');
+    const btnId = `btn-${method}-${path}`;
+    const btn = document.getElementById(btnId);
+
+    if (btn) {
+      btn.innerHTML = '<div class="spinner"></div> Running…';
+      btn.classList.add('loading');
+    }
+
+    const panel   = document.getElementById('response-panel');
+    const body    = document.getElementById('response-body');
+    const pill    = document.getElementById('res-status-pill');
+    const epLabel = document.getElementById('res-endpoint');
+
+    panel.style.display = 'block';
+    body.textContent = '⏳ Loading…';
+    epLabel.textContent = `${method} ${GATEWAY_URL}${path}`;
+    pill.textContent = '…';
+    pill.className = 'status-pill';
+
+    try {
+      const res = await fetch(`${GATEWAY_URL}${path}`, {
+        method,
+        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+      });
+
+      const statusCode = res.status;
+      pill.textContent = statusCode;
+      pill.className = 'status-pill ' + (statusCode < 300 ? 'status-2xx' : statusCode < 500 ? 'status-4xx' : 'status-5xx');
+
+      let responseText;
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('json')) {
+        const json = await res.json();
+        responseText = syntaxHighlight(json);
+        body.innerHTML = responseText;
+      } else {
+        responseText = await res.text();
+        body.textContent = responseText.substring(0, 2000) || '(empty response)';
+      }
+
+    } catch(e) {
+      pill.textContent = 'ERR';
+      pill.className = 'status-pill status-4xx';
+      body.textContent = '❌ ' + e.message + '\n\nMake sure the gateway is running on localhost:8080 and CORS is configured.';
+    }
+
+    if (btn) {
+      btn.innerHTML = '▶ Run Request';
+      btn.classList.remove('loading');
+    }
+
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ── JSON SYNTAX HIGHLIGHT ────────────────────────────────────────────
+  function syntaxHighlight(json) {
+    const str = JSON.stringify(json, null, 2);
+    return str.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
+      let cls = 'json-num';
+      if (/^"/.test(match)) {
+        cls = /:$/.test(match) ? 'json-key' : 'json-string';
+      } else if (/true|false/.test(match)) {
+        cls = 'json-bool';
+      } else if (/null/.test(match)) {
+        cls = 'json-null';
+      }
+      return `<span class="${cls}">${match}</span>`;
+    });
+  }
+
+  // ── TOKEN MODAL ──────────────────────────────────────────────────────
+  function showTokenModal() {
+    document.getElementById('token-modal-overlay').classList.add('open');
+  }
+  function closeTokenModal(e) {
+    if (!e || e.target === document.getElementById('token-modal-overlay')) {
+      document.getElementById('token-modal-overlay').classList.remove('open');
+    }
+  }
+  function copyToken() {
+    const t = document.getElementById('token-full').value;
+    navigator.clipboard.writeText(t).then(() => alert('Token copied to clipboard!'));
+  }
+
+  // ── LOGOUT ───────────────────────────────────────────────────────────
+  function logout() {
+    const token = sessionStorage.getItem('access_token');
+    sessionStorage.clear();
+    const params = new URLSearchParams({ redirect_uri: REDIRECT_URI });
+    window.location.href = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/logout?${params}`;
+  }
+
+  // ── INIT ─────────────────────────────────────────────────────────────
+  (async function init() {
+    const isCallback = new URLSearchParams(window.location.search).has('code');
+
+    if (isCallback) {
+      const ok = await handleCallback();
+      if (ok) { showApp(); return; }
+    }
+
+    const token = sessionStorage.getItem('access_token');
+    if (token) {
+      // Check token not expired
+      const claims = parseJwt(token);
+      if (claims.exp && claims.exp * 1000 > Date.now()) {
+        showApp();
+      } else {
+        sessionStorage.clear();
+      }
+    }
+  })();
+</script>
+</body>
+</html>

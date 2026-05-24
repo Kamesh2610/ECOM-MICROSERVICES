@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Microservices Gateway Client</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-card: #1f2937;
+            --accent-primary: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --border-color: #374151;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+        }
+
+        .grid-controls {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: #4b5563;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            width: 100%;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+            resize: none;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        textarea:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(59, 130, 246, 0.35);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn:disabled {
+            background: var(--border-color);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .status-badge.success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-badge.error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-badge.warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .product-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 12px 24px -10px rgba(59, 130, 246, 0.2);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .product-info {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex-grow: 1;
+        }
+
+        .product-category {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-primary);
+            font-weight: 700;
+        }
+
+        .product-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .product-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .product-stock {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background-color: var(--bg-primary);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .results-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .raw-container {
+            margin-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+        }
+
+        .raw-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem 0;
+            user-select: none;
+        }
+
+        .raw-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .raw-content {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+            display: none;
+            margin-top: 0.75rem;
+            color: #34d399;
+        }
+
+        .raw-content.active {
+            display: block;
+        }
+
+        .terminal-cmd {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>API Gateway Client Portal</h1>
+            <p class="subtitle">Securely request e-commerce services on port 8080</p>
+        </header>
+
+        <div class="grid-controls">
+            <!-- PANEL 1: KEYCLOAK TOKEN GENERATOR -->
+            <section class="card">
+                <h2 class="card-title">🔑 Keycloak Authenticator</h2>
+                
+                <div class="form-group">
+                    <label for="username-input">Keycloak Username</label>
+                    <input type="text" id="username-input" class="input-field" value="john21">
+                </div>
+
+                <div class="form-group">
+                    <label for="password-input">Password</label>
+                    <input type="password" id="password-input" class="input-field" value="john21">
+                </div>
+
+                <button id="gen-btn" class="btn">Generate & Use Token</button>
+                
+                <div id="gen-status-container" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+            </section>
+
+            <!-- PANEL 2: API GATEWAY REQUESTER -->
+            <section class="card">
+                <h2 class="card-title">🌐 API Gateway Request</h2>
+                
+                <div class="form-group">
+                    <label for="token-input">Active Access Token (Bearer JWT)</label>
+                    <textarea id="token-input" placeholder="Generate a token using the authenticator, or paste a valid JWT here..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <button id="fetch-btn" class="btn">Fetch Catalog Products</button>
+                    <div id="status-container" style="display: flex;"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- RESULTS SECTION -->
+        <section id="results-section" class="results-card" style="display: none;">
+            <h2 style="margin-bottom: 1rem; font-size: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Product Catalog</h2>
+            <div id="products-container" class="products-grid"></div>
+
+            <div class="raw-container">
+                <div class="raw-header" onclick="toggleRaw()">
+                    <span class="raw-title">📂 Show Raw JSON Response</span>
+                    <span id="raw-arrow" style="font-size: 0.8rem; color: var(--text-secondary);">▼</span>
+                </div>
+                <pre id="raw-json" class="raw-content"></pre>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const usernameInput = document.getElementById('username-input');
+        const passwordInput = document.getElementById('password-input');
+        const genBtn = document.getElementById('gen-btn');
+        const genStatusContainer = document.getElementById('gen-status-container');
+
+        const tokenInput = document.getElementById('token-input');
+        const fetchBtn = document.getElementById('fetch-btn');
+        const statusContainer = document.getElementById('status-container');
+        const resultsSection = document.getElementById('results-section');
+        const productsContainer = document.getElementById('products-container');
+        const rawJson = document.getElementById('raw-json');
+        const rawArrow = document.getElementById('raw-arrow');
+
+        // Automatic Token Generator via CORS
+        genBtn.addEventListener('click', async () => {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!username || !password) {
+                showGenStatus('Username and password are required.', 'error');
+                return;
+            }
+
+            genBtn.disabled = true;
+            genBtn.textContent = 'Authenticating...';
+            genStatusContainer.innerHTML = '';
+
+            try {
+                const params = new URLSearchParams();
+                params.append('client_id', 'admin-cli');
+                params.append('username', username);
+                params.append('password', password);
+                params.append('grant_type', 'password');
+
+                const response = await fetch('http://localhost:8180/realms/ecom-app/protocol/openid-connect/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: params
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const accessToken = data.access_token;
+                    tokenInput.value = accessToken;
+                    const parts = accessToken.split('.').length;
+                    showGenStatus(`✅ Token generated (${accessToken.length} chars, ${parts} JWT parts)`, 'success');
+                    
+                    // Automatically trigger product fetch for maximum seamless experience
+                    setTimeout(() => {
+                        fetchBtn.click();
+                    }, 300);
+                } else {
+                    const errData = await response.json().catch(() => ({}));
+                    const errMsg = errData.error_description || `HTTP ${response.status}`;
+                    showGenStatus(`Auth Failed: ${errMsg}`, 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showGenStatus('Network Error: Cannot connect to Keycloak on localhost:8180. Make sure the container is up!', 'error');
+            } finally {
+                genBtn.disabled = false;
+                genBtn.textContent = 'Generate & Use Token';
+            }
+        });
+
+        // Gateway Products Fetcher
+        fetchBtn.addEventListener('click', async () => {
+            let token = tokenInput.value.trim();
+
+            // Only strip leading/trailing whitespace and newlines — do NOT strip valid JWT chars
+            token = token.replace(/\s+/g, '');
+
+            console.log('Token length:', token.length);
+            console.log('Token starts with eyJ:', token.startsWith('eyJ'));
+
+            if (!token) {
+                showStatus('Access token missing! Paste one or generate above.', 'warning');
+                return;
+            }
+
+            // Validate JWT structure: must be 3 base64url parts separated by dots
+            const jwtParts = token.split('.');
+            if (jwtParts.length !== 3 || !token.startsWith('eyJ')) {
+                showStatus(`Token is not a valid JWT! Parts: ${jwtParts.length}, Length: ${token.length}. Re-generate the token.`, 'error');
+                return;
+            }
+
+            fetchBtn.disabled = true;
+            fetchBtn.textContent = 'Fetching Catalog...';
+            statusContainer.innerHTML = '';
+            resultsSection.style.display = 'none';
+
+            try {
+                const response = await fetch('http://localhost:8080/api/products', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.status === 200) {
+                    const data = await response.json();
+                    showStatus('Success! Status 200 OK', 'success');
+                    displayProducts(data);
+                } else if (response.status === 401) {
+                    const authHeader = response.headers.get('WWW-Authenticate') || '';
+                    let details = 'Token expired or invalid.';
+                    if (authHeader) {
+                        const match = authHeader.match(/error_description="([^"]+)"/);
+                        if (match) {
+                            details = match[1];
+                        } else {
+                            details = authHeader;
+                        }
+                    }
+                    showStatus(`401 Unauthorized: ${details}`, 'error');
+                } else if (response.status === 403) {
+                    showStatus('403 Forbidden: Insufficient roles/privileges.', 'error');
+                } else {
+                    showStatus(`Error: HTTP ${response.status}`, 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showStatus('Network Error: Could not connect to API Gateway on localhost:8080.', 'error');
+            } finally {
+                fetchBtn.disabled = false;
+                fetchBtn.textContent = 'Fetch Catalog Products';
+            }
+        });
+
+        function showGenStatus(message, type) {
+            genStatusContainer.innerHTML = `
+                <div class="status-badge ${type}">
+                    ${type === 'success' ? '✓' : '✗'} ${message}
+                </div>
+            `;
+        }
+
+        function showStatus(message, type) {
+            statusContainer.innerHTML = `
+                <div class="status-badge ${type}">
+                    ${type === 'success' ? '✓' : type === 'warning' ? '⚠' : '✗'} ${message}
+                </div>
+            `;
+        }
+
+        function displayProducts(products) {
+            productsContainer.innerHTML = '';
+            rawJson.textContent = JSON.stringify(products, null, 4);
+            resultsSection.style.display = 'block';
+
+            if (products.length === 0) {
+                productsContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 3rem;">No products found in the catalog.</div>';
+                return;
+            }
+
+            products.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img class="product-img" src="${p.imageUrl || 'https://placehold.co/600x400'}" alt="${p.name}">
+                    <div class="product-info">
+                        <span class="product-category">${p.category || 'Product'}</span>
+                        <h3 class="product-title">${p.name}</h3>
+                        <p class="product-desc">${p.description || 'No description available.'}</p>
+                        <div class="product-meta">
+                            <span class="product-price">$${p.price.toFixed(2)}</span>
+                            <span class="product-stock">Stock: ${p.stockQuantity}</span>
+                        </div>
+                    </div>
+                `;
+                productsContainer.appendChild(card);
+            });
+        }
+
+        function toggleRaw() {
+            rawJson.classList.toggle('active');
+            rawArrow.textContent = rawJson.classList.contains('active') ? '▲' : '▼';
+        }
+    </script>
+</body>
+</html>
